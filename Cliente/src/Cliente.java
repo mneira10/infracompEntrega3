@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.Random;
 
 
-public class Main {
+public class Cliente implements Runnable{
 
 
     static KeyPair llaves;
@@ -33,74 +33,32 @@ public class Main {
     static String sim;
     static String hmacPost;
 
+    int nThreads;
+    int carga;
+    int iteracion;
 
-    public static void main(String[] args) throws Exception {
+    long tiempoCreacionLlaves;
+    long timepoACT1;
 
-        Socket s = null;
-        PrintWriter escritor = null;
-        BufferedReader lector = null;
-
-        String ip = "localhost";
-        int puerto = 8084;
-
-        //concetarse a ip:ip en el puerto:puerto
-        try {
-            s = new Socket(ip, puerto);
-            escritor = new PrintWriter(s.getOutputStream(), true);
-            lector = new BufferedReader(new InputStreamReader(
-                    s.getInputStream()));
-
-        }
-        //en caso de no poder conectarse
-        catch (Exception e) {
-            System.err.println("Exception: " + e.getMessage());
-            System.exit(1);
-        }
-
-        boolean valido =false;
-        while(!valido) {
-            System.out.println("Especifique qué algoritmos de cifrado desea:");
-            System.out.println("Cifrado simétrico: (Escriba: AES ó Blowfish)");
-            sim = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            System.out.println("HMAC: (Escriba: MD5 ó SHA1 ó SHA256)");
-            hmacPost = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            if((sim.equals("AES") || sim.equals("Blowfish")) && (hmacPost.equals("MD5") ||
-                    hmacPost.equals("SHA1") || hmacPost.equals("SHA256") )){
-                valido = true;
-            }else System.out.println("Algoritmos inválidos");
-
-        }
-
-//        System.out.println("Postfix: " + hmacPost.substring(4));
-        //ejecucion del protocolo de comunicacion
-        etapa1(lector, escritor);
-        //mandar el certificado
-        etapa2(lector,escritor,s);
-        //etapa3
-        etapa3(lector,escritor,s);
-        //etapa4
-        etapa4(lector,escritor,s);
-
-
-
-
-        escritor.close();
-        lector.close();
-
+    public Cliente(int nThreads, int carga, int iteracion) {
+        this.nThreads = nThreads;
+        this.carga = carga;
+        this.iteracion = iteracion;
     }
 
-
-
-    public static void imprimirServerConsola(BufferedReader lector) throws Exception {
+    public void imprimirServerConsola(BufferedReader lector) throws Exception {
         String fromServer;
         if ((fromServer = lector.readLine()) != null) {
             System.out.println("Servidor: " + fromServer);
         }
     }
 
-    public static void etapa1(BufferedReader lector, PrintWriter escritor) throws Exception     {
+    public void etapa1(BufferedReader lector, PrintWriter escritor) throws Exception     {
         System.out.println("INICIO DE ETAPA1");
-        escritor.println("HOLA");
+        escritor.println("HOLA"+":" +
+                        this.nThreads + ":" +
+                        this.carga + ":" +
+                        this.iteracion);
 
         imprimirServerConsola(lector);
 
@@ -111,7 +69,7 @@ public class Main {
         System.out.println("FIN DE ETAPA1");
     }
 
-    public static void etapa2(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception {
+    public void etapa2(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception {
 
         System.out.println("INICIO DE ETAPA2");
         escritor.println("CERTCLNT");
@@ -134,7 +92,7 @@ public class Main {
         System.out.println("FIN DE ETAPA2");
     }
 
-    public static void etapa3(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception {
+    public void etapa3(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception {
         System.out.println("INICIO DE ETAPA3");
         imprimirServerConsola(lector);
 
@@ -158,7 +116,10 @@ public class Main {
         System.out.println("FIN DE ETAPA3");
     }
 
-    public static void etapa4(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception{
+    public void etapa4(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception{
+
+        long tiempoActual = System.currentTimeMillis();
+
 
         String etapa41 = lector.readLine().split(":")[1];
 
@@ -174,6 +135,11 @@ public class Main {
 
 
         simmetricKey = new SecretKeySpec( clearText, 0, clearText.length, sim );
+
+        tiempoCreacionLlaves = System.currentTimeMillis() - tiempoActual;
+
+
+
 
         String coordenadas = "41 24.2028, 2 10.441";
 
@@ -194,6 +160,7 @@ public class Main {
         sToSend = sToSend.toUpperCase();
 
         sToSend = "ACT1:"+sToSend;
+        tiempoActual = System.currentTimeMillis();
         escritor.println(sToSend);
 
         //mandar hash de la posicion  - ACT2
@@ -214,6 +181,7 @@ public class Main {
 
 
         imprimirServerConsola(lector);
+        timepoACT1 = System.currentTimeMillis() - tiempoActual;
 
 
     }
@@ -250,5 +218,71 @@ public class Main {
     }
 
 
+    @Override
+    public void run() {
+        try {
+            Socket s = null;
+            PrintWriter escritor = null;
+            BufferedReader lector = null;
+
+            String ip = "localhost";
+            int puerto = 8084;
+
+            //concetarse a ip:ip en el puerto:puerto
+            try {
+                s = new Socket(ip, puerto);
+                escritor = new PrintWriter(s.getOutputStream(), true);
+                lector = new BufferedReader(new InputStreamReader(
+                        s.getInputStream()));
+
+            }
+            //en caso de no poder conectarse
+            catch (Exception e) {
+                System.err.println("Exception: " + e.getMessage());
+                System.exit(1);
+            }
+
+            boolean valido = false;
+
+            while (!valido) {
+                System.out.println("Especifique qué algoritmos de cifrado desea:");
+                System.out.println("Cifrado simétrico: (Escriba: AES ó Blowfish)");
+                sim = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+                System.out.println("HMAC: (Escriba: MD5 ó SHA1 ó SHA256)");
+                hmacPost = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+                if ((sim.equals("AES") || sim.equals("Blowfish")) && (hmacPost.equals("MD5") ||
+                        hmacPost.equals("SHA1") || hmacPost.equals("SHA256"))) {
+                    valido = true;
+                } else System.out.println("Algoritmos inválidos");
+
+            }
+
+//        System.out.println("Postfix: " + hmacPost.substring(4));
+            //ejecucion del protocolo de comunicacion
+            etapa1(lector, escritor);
+            //mandar el certificado
+            etapa2(lector, escritor, s);
+            //etapa3
+            etapa3(lector, escritor, s);
+            //etapa4
+            etapa4(lector, escritor, s);
+
+
+            escritor.close();
+            lector.close();
+
+            //loggeamos resultados a un archivo
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./Cliente/data/"+nThreads+"-"+carga+".dat", true));
+            writer.append(tiempoCreacionLlaves + " " + timepoACT1 + "\n");
+
+            writer.close();
+
+
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }
