@@ -228,7 +228,7 @@ public class Cliente implements Runnable{
             PrintWriter escritor = null;
             BufferedReader lector = null;
 
-            String ip = "localhost";
+            String ip = "13.59.144.156";
             int puerto = 8084;
 
             //concetarse a ip:ip en el puerto:puerto

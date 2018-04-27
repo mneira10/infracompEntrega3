@@ -29,7 +29,7 @@ public class Main {
 //            }
 //        }
 
-        Task task = new ClientTask(1,1,20);
+        Task task = new ClientTask(1,1,0);
         System.out.println("Probando " + 1 + " threads con carga " + 1 + " y tiempo " + 0);
                 /*
                 De la documentacion de gload:
