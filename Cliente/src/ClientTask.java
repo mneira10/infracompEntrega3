@@ -15,6 +15,7 @@ public class ClientTask extends Task{
     @Override
     public void execute() {
         new Thread(new Cliente(nThreads,carga,iteracion)).start();
+        System.out.println("lalalala");
     }
 
     @Override

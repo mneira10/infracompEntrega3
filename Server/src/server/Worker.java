@@ -246,12 +246,15 @@ public class    Worker implements Runnable {
                 String rta = ESTADO + SEPARADOR + ERROR;
                 write(writer, rta);
             }
-            System.out.println("Thread " + id + "Terminando\n");
+            System.out.println("Thread " + id + "Terminando");
+            System.out.println("Iteracion: " + iteracion + " cpu: " + getProcessCpuLoad());
 
-            BufferedWriter writerF = new BufferedWriter(new FileWriter("./Server/data/"+nThreads+"-"+carga+".dat", true));
-            writerF.append(iteracion + " " + getProcessCpuLoad() + "\n");
+            write(writer,getProcessCpuLoad() + "");
 
-            writerF.close();
+//            BufferedWriter writerF = new BufferedWriter(new FileWriter("./Server/data/"+nThreads+"-"+carga+".dat", true));
+//            writerF.append(iteracion + " " + getProcessCpuLoad() + "\n");
+//
+//            writerF.close();
 
 
 

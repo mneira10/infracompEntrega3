@@ -39,6 +39,7 @@ public class Cliente implements Runnable{
 
     long tiempoCreacionLlaves;
     long timepoACT1;
+    double cpuUsage;
 
     public Cliente(int nThreads, int carga, int iteracion) {
         this.nThreads = nThreads;
@@ -49,12 +50,12 @@ public class Cliente implements Runnable{
     public void imprimirServerConsola(BufferedReader lector) throws Exception {
         String fromServer;
         if ((fromServer = lector.readLine()) != null) {
-            System.out.println("Servidor: " + fromServer);
+//            System.out.println("Servidor: " + fromServer);
         }
     }
 
     public void etapa1(BufferedReader lector, PrintWriter escritor) throws Exception     {
-        System.out.println("INICIO DE ETAPA1");
+//        System.out.println("INICIO DE ETAPA1");
         escritor.println("HOLA"+":" +
                         this.nThreads + ":" +
                         this.carga + ":" +
@@ -66,12 +67,12 @@ public class Cliente implements Runnable{
 
         imprimirServerConsola(lector);
 
-        System.out.println("FIN DE ETAPA1");
+//        System.out.println("FIN DE ETAPA1");
     }
 
     public void etapa2(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception {
 
-        System.out.println("INICIO DE ETAPA2");
+//        System.out.println("INICIO DE ETAPA2");
         escritor.println("CERTCLNT");
 
         Security.addProvider(new BouncyCastleProvider());
@@ -80,7 +81,7 @@ public class Cliente implements Runnable{
         llaves = keyGen.generateKeyPair();
         java.security.cert.X509Certificate cert = certificado(llaves);
 
-        System.out.println(cert.toString());
+//        System.out.println(cert.toString());
         byte[] mybyte = cert.getEncoded();
         OutputStream outStream = s.getOutputStream();
         outStream.write(mybyte);
@@ -89,11 +90,11 @@ public class Cliente implements Runnable{
 
         imprimirServerConsola(lector);
 
-        System.out.println("FIN DE ETAPA2");
+//        System.out.println("FIN DE ETAPA2");
     }
 
     public void etapa3(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception {
-        System.out.println("INICIO DE ETAPA3");
+//        System.out.println("INICIO DE ETAPA3");
         imprimirServerConsola(lector);
 
 
@@ -109,11 +110,11 @@ public class Cliente implements Runnable{
         }
 
         serverKey = certificadoServer.getPublicKey();
-        System.out.println("Server public key:");
-        System.out.println(serverKey);
+//        System.out.println("Server public key:");
+//        System.out.println(serverKey);
 
         escritor.println("ESTADO:OK");
-        System.out.println("FIN DE ETAPA3");
+//        System.out.println("FIN DE ETAPA3");
     }
 
     public void etapa4(BufferedReader lector, PrintWriter escritor,Socket s) throws Exception{
@@ -182,7 +183,8 @@ public class Cliente implements Runnable{
 
         imprimirServerConsola(lector);
         timepoACT1 = System.currentTimeMillis() - tiempoActual;
-
+        cpuUsage = Double.parseDouble(lector.readLine());
+//        System.out.println("cpuUsage: " + cpuUsage);
 
     }
 
@@ -190,9 +192,9 @@ public class Cliente implements Runnable{
 
         long now = System.currentTimeMillis();
         Date comienzo = new Date(now-1000*60*60*24*365);
-        System.out.println(comienzo.toString());
+//        System.out.println(comienzo.toString());
         Date finals = new Date(now + 365 * 24 * 60 * 60 * 1000);
-        System.out.println(finals.toString());
+//        System.out.println(finals.toString());
 
         X500NameBuilder nm = new X500NameBuilder();
         nm.addRDN(BCStyle.C, "Colombia");
@@ -221,6 +223,7 @@ public class Cliente implements Runnable{
     @Override
     public void run() {
         try {
+            System.out.println("entra");
             Socket s = null;
             PrintWriter escritor = null;
             BufferedReader lector = null;
@@ -245,11 +248,11 @@ public class Cliente implements Runnable{
             boolean valido = false;
 
             while (!valido) {
-                System.out.println("Especifique qué algoritmos de cifrado desea:");
-                System.out.println("Cifrado simétrico: (Escriba: AES ó Blowfish)");
-                sim = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-                System.out.println("HMAC: (Escriba: MD5 ó SHA1 ó SHA256)");
-                hmacPost = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+//                System.out.println("Especifique qué algoritmos de cifrado desea:");
+//                System.out.println("Cifrado simétrico: (Escriba: AES ó Blowfish)");
+                sim = "AES" ;//(new BufferedReader(new InputStreamReader(System.in))).readLine();
+//                System.out.println("HMAC: (Escriba: MD5 ó SHA1 ó SHA256)");
+                hmacPost = "MD5";//(new BufferedReader(new InputStreamReader(System.in))).readLine();
                 if ((sim.equals("AES") || sim.equals("Blowfish")) && (hmacPost.equals("MD5") ||
                         hmacPost.equals("SHA1") || hmacPost.equals("SHA256"))) {
                     valido = true;
@@ -270,12 +273,15 @@ public class Cliente implements Runnable{
 
             escritor.close();
             lector.close();
+            System.out.println("writing to file");
 
             //loggeamos resultados a un archivo
             BufferedWriter writer = new BufferedWriter(new FileWriter("./Cliente/data/"+nThreads+"-"+carga+".dat", true));
-            writer.append(tiempoCreacionLlaves + " " + timepoACT1 + "\n");
+            writer.append(tiempoCreacionLlaves + " " + timepoACT1 + " "+cpuUsage+"\n");
 
             writer.close();
+
+            System.out.println("termino");
 
 
 
