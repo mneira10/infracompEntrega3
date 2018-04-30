@@ -22,6 +22,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 
 public class Cliente implements Runnable{
@@ -40,11 +42,13 @@ public class Cliente implements Runnable{
     long tiempoCreacionLlaves;
     long timepoACT1;
     double cpuUsage;
+    CyclicBarrier cb;
 
-    public Cliente(int nThreads, int carga, int iteracion) {
+    public Cliente(int nThreads, int carga, int iteracion, CyclicBarrier cb) {
         this.nThreads = nThreads;
         this.carga = carga;
         this.iteracion = iteracion;
+        this.cb = cb;
     }
 
     public void imprimirServerConsola(BufferedReader lector) throws Exception {
@@ -183,7 +187,9 @@ public class Cliente implements Runnable{
 
         imprimirServerConsola(lector);
         timepoACT1 = System.currentTimeMillis() - tiempoActual;
-        cpuUsage = Double.parseDouble(lector.readLine());
+        String scpu = lector.readLine();
+        System.out.println("cpu usage en string: " + scpu);
+        cpuUsage = Double.parseDouble(scpu);
 //        System.out.println("cpuUsage: " + cpuUsage);
 
     }
@@ -283,11 +289,21 @@ public class Cliente implements Runnable{
 
             System.out.println("termino");
 
+            cb.await();
+
+
 
 
         }
         catch(Exception e){
             e.printStackTrace();
+            try {
+                cb.await();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            } catch (BrokenBarrierException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
