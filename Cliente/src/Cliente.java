@@ -22,8 +22,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Random;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 
 public class Cliente implements Runnable{
@@ -42,13 +40,11 @@ public class Cliente implements Runnable{
     long tiempoCreacionLlaves;
     long timepoACT1;
     double cpuUsage;
-    CyclicBarrier cb;
 
-    public Cliente(int nThreads, int carga, int iteracion, CyclicBarrier cb) {
+    public Cliente(int nThreads, int carga, int iteracion) {
         this.nThreads = nThreads;
         this.carga = carga;
         this.iteracion = iteracion;
-        this.cb = cb;
     }
 
     public void imprimirServerConsola(BufferedReader lector) throws Exception {
@@ -61,10 +57,9 @@ public class Cliente implements Runnable{
     public void etapa1(BufferedReader lector, PrintWriter escritor) throws Exception     {
 //        System.out.println("INICIO DE ETAPA1");
         escritor.println("HOLA"+":" +
-                        this.nThreads + ":" +
-                        this.carga + ":" +
-                        this.iteracion);
-
+                this.nThreads + ":" +
+                this.carga + ":" +
+                this.iteracion);
         imprimirServerConsola(lector);
 
         escritor.println("ALGORITMOS:" + sim.toUpperCase() + ":RSA:HMAC"  + hmacPost);
@@ -134,6 +129,7 @@ public class Cliente implements Runnable{
 
 
         Cipher cipher = Cipher.getInstance("RSA");
+
         cipher.init(Cipher.DECRYPT_MODE, llaves.getPrivate());
         byte [] clearText = cipher.doFinal(etapa411);
 
@@ -187,9 +183,7 @@ public class Cliente implements Runnable{
 
         imprimirServerConsola(lector);
         timepoACT1 = System.currentTimeMillis() - tiempoActual;
-        String scpu = lector.readLine();
-        System.out.println("cpu usage en string: " + scpu);
-        cpuUsage = Double.parseDouble(scpu);
+        cpuUsage = Double.parseDouble(lector.readLine());
 //        System.out.println("cpuUsage: " + cpuUsage);
 
     }
@@ -203,9 +197,9 @@ public class Cliente implements Runnable{
 //        System.out.println(finals.toString());
 
         X500NameBuilder nm = new X500NameBuilder();
-        nm.addRDN(BCStyle.C, "Colombia");
-        nm.addRDN(BCStyle.ST, "Bogota");
-        nm.addRDN(BCStyle.O, "Universidad de los Andes");
+        nm.addRDN( BCStyle.C, "Colombia");
+        nm.addRDN( BCStyle.ST, "Bogota");
+        nm.addRDN( BCStyle.O, "Universidad de los Andes");
         org.bouncycastle.asn1.x500.X500Name x500name = nm.build();
 
         BigInteger certSerialNum = new BigInteger(128, new Random());
@@ -240,6 +234,8 @@ public class Cliente implements Runnable{
             //concetarse a ip:ip en el puerto:puerto
             try {
                 s = new Socket(ip, puerto);
+//                s.setSoTimeout(5000);
+//                System.out.println("Timeout de: " + s.getSoTimeout());
                 escritor = new PrintWriter(s.getOutputStream(), true);
                 lector = new BufferedReader(new InputStreamReader(
                         s.getInputStream()));
@@ -283,27 +279,17 @@ public class Cliente implements Runnable{
 
             //loggeamos resultados a un archivo
             BufferedWriter writer = new BufferedWriter(new FileWriter("./Cliente/data/"+nThreads+"-"+carga+".dat", true));
-            writer.append(tiempoCreacionLlaves + " " + timepoACT1 + " "+cpuUsage+"\n");
+            writer.append(iteracion + " " + tiempoCreacionLlaves + " " + timepoACT1 + " "+cpuUsage+"\n");
 
             writer.close();
 
             System.out.println("termino");
-
-            cb.await();
-
 
 
 
         }
         catch(Exception e){
             e.printStackTrace();
-            try {
-                cb.await();
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            } catch (BrokenBarrierException e1) {
-                e1.printStackTrace();
-            }
         }
     }
 
