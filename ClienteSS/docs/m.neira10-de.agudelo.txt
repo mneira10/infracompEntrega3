@@ -1,0 +1,35 @@
+Documento. Caso 2. Mauricio Neira Giraldo (201424001) - Daniel Agudelo (201533411)
+
+
+Parte A ----------Análisis y entendimiento del problema ---------
+
+	1. Identifique y describa los datos que deben ser protegidos en el sistema de rastreo de unidades de distribución. Explique su respuesta en cada caso (*) y responda la pregunta ¿Si un actor no autorizado consigue acceso al dato mencionado, ya sea en Modo lectura o escritura, cómo podría afectar la empresa.
+
+R1: Se debe proteger la información del estado de cada una de las unidades. Sobretodo para garantizar la integridad de estos datos, porque se considera crítico tener la certeza de cuál es el estado de cada unidad de distribución. Esta información incluye ubicación actual, ubicación objetivo y contenido de lo que están transportando.
+
+ Para todos estos datos la situación frente al potencial acceso de un actor no autorizado, es la misma. Si lo hace en modo lectura, en principio no hay problema, ya que no se especifican estándares de confidencialidad para estos datos en la empresa, y no se contemplan los ataques físicos a las unidades. Por otro lado, si se accesa en modo escritura, los daños pueden ser grave, porque al servidor podrían llegar datos que no son conformes con la realidad. 
+
+	2. Identifique cuatro vulnerabilidades del mismo sistema, teniendo en cuenta únicamente aspectos técnicos o de procesos (no organizacionales). Identifique vulnerabilidades no soloen lo relacionado con la comunicación sino también con el almacenamiento y procesamiento de los datos. Explique su respuesta en cada caso (*).
+
+R2:
+ v1 (comunicación): El contexto plantea que la comunicación de datos es por red celular, debido a la poca alternativa que se tiene en lugares del territorio nacional en los que se entregan paquetes. Esto inmediatamente implica que no hay barreras físicas para los atacantes en la red, mientras la transmisión de los datos. También siguen siendo posibles problemas de integridad de los datos y banda ancha limitada por la cantidad masiva de usuarios.
+
+ v2 (almacenamiento): El contexto plantea que cuando no haya conectividad celular disponible, se deben almacenar los datos hasta que sí haya. Siendo así, el almacenamiento de los datos debe claramente asegurar su integridad, de tal manera que se transmitan los datos correctos.
+
+ v3 (almacenamiento): Como el enuciado del caso lo establece, cada parte enviará su llave pública junto con su certificado, en la etapa 2 del protocolo. Siendo así, y como cada uno usará la llave pública del otro en la etapa 4, el almacenamiento de estas llaves debe garantizar la integridad de las mismas. El sistema es vulnerable porque en el almacenamiento se pueden recibir ataques, haciendo que en la etapa 4, haya una falla, debida a que se cifra con una llave incorrecta, que no va a permitir que se descrifre correctamente con la llave privada
+
+ v4 (procesamiento): Como lo establece el enunciado del caso, cada día se calculan las rutas en la madrugada. Esto implica que el procesamiento debe ser protegido. Es decir, no se debe permitir que un intruso pueda realizar procesamiento sobre los datos, ya que eso podría resultar no sólo en inconsistencias de contabilidad, sino también en un cálculo incorrecto de las siguientes rutas.
+
+
+
+
+
+Parte B -----------Propuesta de soluciones--------------------------
+	1. Para cada una de las vulnerabilidades que usted identificó en el punto anterior, proponga mecanismos de resolución: Los  mecanismos  propuestos  deben  ser explicados,  por ejemplo,  si  se  habla  de  cifrado  sobre  un  canal  de comunicaciones, debe identificar los participantes en la comunicación, y si es cifrado simétrico o asimétrico (y justificar la decisión).
+
+R1:
+ m1 (Resuelve v1): Cifrado simétrico para la transmisión de los datos (Unidad de distribución - sucursal): Como las unidades de distribución son parte de la empresa, tener una llave secreta no debe ser en principio difícil. Ya que las unidades salen de los puntos de la empresa con los que se comunican. Este cifrado es rápido, y como se puede garantizar que sólo las partes  conocen la llave secreta, es seguro.
+
+ m2 (Resuelve v2 y v3): Digest de datos a almacenar. Como se necesita garantizar la integridad de los datos que se van a almacenar, serviría calcular un resumen digital (digest) de los datos a almacenar, antes y después del almacenamiento, para garantizar que los datos no fueron modificados.
+
+ m3 (Resuelve v4): Autenticación biométrica para realizar procesamiento de datos. Esto se implementará para que sólo las personas autorizadas de realizar procesamiento lo hagan. el nivel de protección debe ser así de robusto porque es crítico que el procesamiento de datos se haga correctamente y sólo pueda ser desencadenado y llevado a cabo por alguien autorizado. 
