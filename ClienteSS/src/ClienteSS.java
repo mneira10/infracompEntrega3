@@ -233,7 +233,7 @@ public class ClienteSS implements Runnable{
 
             //concetarse a ip:ip en el puerto:puerto
             try {
-                s = new Socket("localhost", puerto);
+                s = new Socket(ip, puerto);
 //                s.setSoTimeout(5000);
 //                System.out.println("Timeout de: " + s.getSoTimeout());
                 escritor = new PrintWriter(s.getOutputStream(), true);
