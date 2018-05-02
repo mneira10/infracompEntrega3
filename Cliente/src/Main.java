@@ -11,7 +11,7 @@ public class Main {
 
 //        for(int it =0; it<10; it++){
         for( int hilo : nThreads){
-            for(int i = 0 ; i<1 ; i++){
+            for(int i = 0 ; i<cargas.length ; i++){
 
                 Task task = new ClientTask(hilo,cargas[i],tiempos[i]);
                 System.out.println("Probando " + hilo + " threads con carga " + cargas[i] + " y tiempo " + tiempos[i] + ", iteración: " );//+ it);
