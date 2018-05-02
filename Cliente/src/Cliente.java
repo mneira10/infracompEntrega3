@@ -161,6 +161,7 @@ public class Cliente implements Runnable{
         sToSend = sToSend.toUpperCase();
 
         sToSend = "ACT1:"+sToSend;
+
         tiempoActual = System.currentTimeMillis();
         escritor.println(sToSend);
 

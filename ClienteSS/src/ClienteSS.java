@@ -104,7 +104,7 @@ public class ClienteSS implements Runnable{
         X509Certificate certificadoServer = null;
         try {
             certificadoServer = (X509Certificate)certFactory.generateCertificate(inputStream);
-        } catch (CertificateException var75) {
+        } catch (CertificateException var75){
             var75.printStackTrace();
         }
 
